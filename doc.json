@@ -1,0 +1,830 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2.1.4",
+    "title": "Post API",
+    "description": "Easy way to post some good stuff"
+  },
+  "host": "server-expres.herokuapp.com",
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Registration and login"
+    },
+    {
+      "name": "users",
+      "description": "Actions with users"
+    },
+    {
+      "name": "posts",
+      "description": "Actions with posts"
+    },
+    {
+      "name": "comments",
+      "description": "Actions with comments"
+    }
+  ],
+  "paths": {
+    "/auth/registration": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register a new user",
+        "description": "",
+        "operationId": "addUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Authorization values",
+            "required": true,
+            "schema": {
+              "example": {
+                "name": "Jon",
+                "email": "jon@mail.ru",
+                "password": "qwe123ewq321"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "302": {
+            "description": "User already exists"
+          },
+          "401": {
+            "description": "Cannot create a user"
+          },
+          "400": {
+            "description": "Error stack",
+            "schema": {
+              "example": {
+                "errors": [
+                  {
+                    "msg": "Wrong email",
+                    "param": "email",
+                    "location": "body"
+                  },
+                  {
+                    "msg": "Min password length is 6 symbols",
+                    "param": "password",
+                    "location": "body"
+                  }
+                ],
+                "message": "Incorrect registration data"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Enter to account",
+        "description": "",
+        "operationId": "login",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Login values",
+            "required": true,
+            "schema": {
+              "example": {
+                "email": "jon@mail.ru",
+                "password": "qwe123ewq321"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auth token",
+            "schema": {
+              "example": {
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ",
+                "userId": "ca804530-9f77-11ea-9538-ad7879b20dfb"
+              }
+            }
+          },
+          "400": {
+            "description": "Error stack",
+            "schema": {
+              "example": {
+                "errors": [
+                  {
+                    "msg": "Inccorect email",
+                    "param": "email",
+                    "location": "body"
+                  },
+                  {
+                    "msg": "Insert password",
+                    "param": "password",
+                    "location": "body"
+                  }
+                ],
+                "message": "Incorrect login data"
+              }
+            }
+          },
+          "401": {
+            "description": "User not found"
+          },
+          "402": {
+            "description": "Wrong password, try again"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/users/all": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Find all users",
+        "description": "",
+        "operationId": "allUsers",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Array of users",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "No users found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+
+    "/users/:id": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Find user with specified ID",
+        "description": "",
+        "operationId": "findUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User with ID",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "User with specified ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+
+      "put": {
+        "tags": ["users"],
+        "summary": "Update user with specified ID",
+        "description": "",
+        "operationId": "updateUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "User values. U can paste less than 3 params",
+            "required": true,
+            "schema": {
+              "example": {
+                "name": "Jon",
+                "email": "jon@mail.ru",
+                "password": "qwe123ewq321"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "User with that ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "Delete user with specified ID",
+        "description": "",
+        "operationId": "deleteUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "User with that ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/users/createPost/:id": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Create user's post",
+        "description": "",
+        "operationId": "createPost",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Post values",
+            "required": true,
+            "schema": {
+              "example": {
+                "title": "Hello world",
+                "content": "Thats my first post"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User and his posts",
+            "schema": {
+              "example": {
+                "user": {
+                  "id": "ca804530-9f77-11ea-9538-ad7879b20dfb",
+                  "createdAt": "2020-05-26T17:39:03.556Z",
+                  "updatedAt": "2020-05-26T17:39:03.556Z",
+                  "name": "Alex",
+                  "email": "alex@mail.ru",
+                  "password": "$2a$12$Fjx.Km.MAGeHAERDjTGWbuO3QF35LamrhMU6mxUbHEM7zyUojZpG6",
+                  "posts": [
+                    {
+                      "id": "bae21870-a1ba-11ea-a342-73a6d53c179d",
+                      "createdAt": "2020-05-29T14:43:15.960Z",
+                      "updatedAt": "2020-05-29T14:43:15.960Z",
+                      "title": "Hello world",
+                      "content": "That my first post",
+                      "userId": "ca804530-9f77-11ea-9538-ad7879b20dfb"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body is required"
+          },
+          "401": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "User with specified id not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/users/findPosts/:id": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Find user's posts by user specified ID",
+        "description": "",
+        "operationId": "findUserPosts",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of user's posts",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "User with specified ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/posts/all": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Find all posts",
+        "description": "",
+        "operationId": "allPosts",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Array of posts",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "No posts found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/posts/:id": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Find post with specified ID",
+        "description": "",
+        "operationId": "findPost",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "ID of post to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post with ID",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "Post was not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "tags": ["posts"],
+        "summary": "Update post with specified ID",
+        "description": "",
+        "operationId": "updatePost",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "ID of post to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Post values. U can paste less than 2 params",
+            "required": true,
+            "schema": {
+              "example": {
+                "title": "Hello world",
+                "content": "Thats my first post"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated post",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "401": {
+            "description": "Body is required"
+          },
+          "404": {
+            "description": "Post was not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["posts"],
+        "summary": "Delete post with specified ID",
+        "description": "",
+        "operationId": "deletePost",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "ID of post to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted post",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "Post with specified ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/posts/createComment/:id": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Create posts's comment",
+        "description": "",
+        "operationId": "createComment",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "ID of post to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Comment values",
+            "required": true,
+            "schema": {
+              "example": {
+                "content": "Nice post bro"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post and his comments",
+            "schema": {
+              "example": {
+                "post": {
+                  "id": "bae21870-a1ba-11ea-a342-73a6d53c179d",
+                  "createdAt": "2020-05-29T14:43:15.960Z",
+                  "updatedAt": "2020-05-29T14:43:15.960Z",
+                  "title": "Hello world",
+                  "content": "That my first post",
+                  "userId": "ca804530-9f77-11ea-9538-ad7879b20dfb",
+                  "comments": [
+                    {
+                      "id": "38bdb8b0-a1bd-11ea-bafa-7d950dbb1106",
+                      "createdAt": "2020-05-29T15:01:06.109Z",
+                      "updatedAt": "2020-05-29T15:01:06.109Z",
+                      "content": "Nice post bro",
+                      "postId": "bae21870-a1ba-11ea-a342-73a6d53c179d"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body is required"
+          },
+          "401": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "Post with specified id not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/posts/findComments/:id": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Find posts's comments by post specified ID",
+        "description": "",
+        "operationId": "findPostComments",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "ID of post to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of post's comments",
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "Post with specified ID not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/comments/:id": {
+      "put": {
+        "tags": ["comments"],
+        "summary": "Update comment with specified ID",
+        "description": "",
+        "operationId": "updateComment",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID of comment to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Commnet values.",
+            "required": true,
+            "schema": {
+              "example": {
+                "content": "Nice post bro"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated comment",
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "401": {
+            "description": "Body is required"
+          },
+          "404": {
+            "description": "Comment was not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["comments"],
+        "summary": "Delete comment with specified ID",
+        "description": "",
+        "operationId": "deleteComment",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID of comment to return",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted comment",
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          },
+          "400": {
+            "description": "ID is required"
+          },
+          "404": {
+            "description": "Comment was not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "required": ["name", "email", "password"],
+      "properties": {
+        "id": {
+          "type": "UUID",
+          "format": "v1",
+          "example": "ca804530-9f77-11ea-9538-ad7879b20dfb"
+        },
+        "createdAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "name": {
+          "type": "string",
+          "example": "Jon"
+        },
+        "email": {
+          "type": "string",
+          "example": "jon@mail.ru"
+        },
+        "password": {
+          "type": "string",
+          "example": "$2a$12$Fjx.Km.MAGeHAERDjTGWbuO3QF35LamrhMU6mxUbHEM7zyUojZpG6"
+        }
+      }
+    },
+    "Post": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "id": {
+          "type": "UUID",
+          "format": "v1",
+          "example": "ca804530-9f77-11ea-9538-ad7879b20dfb"
+        },
+        "createdAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "title": {
+          "type": "string",
+          "example": "Hello world"
+        },
+        "content": {
+          "type": "string",
+          "example": "Thats my first post"
+        }
+      }
+    },
+    "Comment": {
+      "type": "object",
+      "required": ["content"],
+      "properties": {
+        "id": {
+          "type": "UUID",
+          "format": "v1",
+          "example": "ca804530-9f77-11ea-9538-ad7879b20dfb"
+        },
+        "createdAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "example": "2020-05-26T17:39:03.556Z"
+        },
+        "content": {
+          "type": "string",
+          "example": "Nice post bro"
+        }
+      }
+    }
+  }
+}
